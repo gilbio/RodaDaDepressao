@@ -30,6 +30,7 @@ public class SystemIDK {
 		contestantCount = 0;
 		points = 0;
 		contestants = new Contestant[numberOfContestants];
+		secrets = new Secret[numberOfRounds];
 	}
 	
 	public int getMaxRounds() {
@@ -41,13 +42,14 @@ public class SystemIDK {
 	}
 
 	// Construtor de segredos
-	public void registerSecret(String secret) {
+	public void addSecret(String secret) {
 		secrets[secretCount] = new Secret(secret);
+		
 		secretCount++;
 	}
 
 	// Construtor de contestants
-	public void registerContestant(String name) {
+	public void addContestant(String name) {
 		contestants[contestantCount] = new Contestant(name);
 		contestantCount++;
 	}

@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.io.*;
 
 /**
  * 
@@ -34,14 +35,16 @@ public class Main {
 	}
 
 	/**
-	 *  verifica as possibilidades da opção puzzle
-	 *  @pre: guess != null && 0 < guess.length() < 100
+	 * verifica as possibilidades da opção puzzle
+	 * 
+	 * @pre: guess != null && 0 < guess.length() < 100
 	 */
-	
+
 	private static void checkPuzzle(Scanner input, SystemIDK game) {
 		String guess = input.nextLine();
 		guess = guess.trim();
-		if (game.isCompleted() && game.getCurrentRound() == game.getMaxRounds() ) { // neste caso se o segredo já estiver revelado
+		if (game.isCompleted() && game.getCurrentRound() == game.getMaxRounds()) { // neste caso se o segredo já estiver
+																					// revelado
 			System.out.println("O jogo terminou");
 		} else if (game.isGuessCorrect(guess)) {
 			game.sucess();
@@ -52,18 +55,18 @@ public class Main {
 
 		}
 	}
-	
+
 	private static void nextContestant(SystemIDK game) {
 		ContestantIterator c1 = game.iteratorOfContestants();
-		while(c1.hasNext()) {
+		while (c1.hasNext()) {
 			Contestant c11 = c1.next();
-			if(!c1.hasNext()) {
+			if (!c1.hasNext()) {
 				c1.resetContestant();
 			}
 		}
 	}
 	// j a t
-	
+
 	private static void lastPlay(SystemIDK game) {
 		if (game.isCompleted()) {
 			game.nextRound();
@@ -74,7 +77,7 @@ public class Main {
 	private static void verification(int points, String letter, SystemIDK game) {
 		letter = letter.trim();
 		if (!game.isTheLetterRepeated(letter.charAt(0)) && game.isTheLetterInTheSecret(letter)) {
-			//game.isLetter(letter.charAt(0)) && letter.length() == 1 ^ 
+			// game.isLetter(letter.charAt(0)) && letter.length() == 1 ^
 			game.pointsAdd(letter, points);
 			lastPlay(game);
 		} else {
@@ -98,16 +101,57 @@ public class Main {
 			System.out.println(VALOR_INVALIDO);
 		} else if (!game.isLetter(letter.charAt(0)) || letter.length() != 1) {
 			System.out.println(LETRA_INVALIDA);
-		} else if (game.isCompleted() && game.isLetter(letter.charAt(0)) || game.getCurrentRound() == game.getMaxRounds()){
+		} else if (game.isCompleted() && game.isLetter(letter.charAt(0))
+				|| game.getCurrentRound() == game.getMaxRounds()) {
 			System.out.println(JOGO_JA_TERMINOU);
 		} else {
 			verification(rouletPoints, letter, game);
 		}
 
 	}
+	
+	private static void addContestant(SystemIDK roda, Scanner input, int numberOfContestants) {
+        for(int i = 0; i < numberOfContestants; i++) {
+             roda.addContestant(input.nextLine());
+             //input.next();
+
+        }
+    }
+	
+	 private static void fillTheArrayOfLines(int[] linesOfTheFile, int numberOfRounds, Scanner input) {
+	        for(int i = 0; i < numberOfRounds; i++) {
+				linesOfTheFile[i] = input.nextInt();
+				//input.nextLine();
+	        }
+		}
+
+	private static void readFromTheFile(Scanner file, SystemIDK roda, int[] linesOfTheFile)
+			throws FileNotFoundException {
+		int stopcounter = 0;
+		int newcounter = 0;
+		int i = 0;
+		int a = 0;
+		String[] copy = new String[50];
+		while (file.hasNextLine()) {
+			copy[i] = file.nextLine();
+			i++;
+		}
+		while (stopcounter != linesOfTheFile.length) {
+
+			if (linesOfTheFile[a] == newcounter) {
+				roda.addSecret(copy[newcounter - 1]);
+				newcounter = 0;
+				stopcounter++;
+				a++;
+			} else {
+				newcounter++;
+			}
+		}
+		file.close();
+	}
 
 	// irá executar uma das opções escolhidas pelo utilizador
-	private static void executeOption(Scanner input, String option, SystemIDK game) {
+	private static void executeOption(Scanner input, String option, SystemIDK game){
 		switch (option) {
 
 		case ROLETA:
@@ -132,20 +176,27 @@ public class Main {
 		}
 	}
 
-	public static void main(String[] args) {
-		Scanner input = new Scanner(System.in);
-		
-		int maxRounds = input.nextInt();
-		int maxContestants = input.nextInt();
-		SystemIDK game = new SystemIDK(maxRounds, maxContestants);
-		
-		for(int i = 0; i < maxContestants; i++) {
-			game.registerContestant(input.nextLine());
-			input.next();
-		}
-		
+	public static void main(String[] args) throws FileNotFoundException {
+		 String fileName = "\\Users\\vlady\\Documents\\topSecret.txt";
+			FileReader reader = new FileReader(fileName);
+			Scanner file = new Scanner(reader);
+			Scanner input = new Scanner(System.in);
+	        int numberOfRounds = input.nextInt();
+	        int numberOfContestants = input.nextInt();   
+	        SystemIDK game = new SystemIDK(numberOfRounds, numberOfContestants);
+			int[] linesOfTheFile = new int[numberOfRounds];
+			fillTheArrayOfLines(linesOfTheFile, numberOfRounds, input);
+	        readFromTheFile(file, game, linesOfTheFile);
+	        SecretIterator it1 = game.iteratorOfSecrets();
+	        while(it1.hasNext()) {
+	            Secret s1 = it1.next();
+				System.out.println(s1.getSecret());		
+			}
+			input.nextLine();
+			addContestant(game, input, numberOfContestants); 
+			ContestantIterator con1 = game.iteratorOfContestants();
+
 		String option;
-		
 
 		do {
 			option = input.next();
