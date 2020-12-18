@@ -29,6 +29,7 @@ public class SystemIDK {
 		secretCount = 0;
 		contestantCount = 0;
 		points = 0;
+		round = 0;
 		contestants = new Contestant[numberOfContestants];
 		secrets = new Secret[numberOfRounds];
 	}
@@ -44,7 +45,7 @@ public class SystemIDK {
 	// Construtor de segredos
 	public void addSecret(String secret) {
 		secrets[secretCount] = new Secret(secret);
-		
+		secrets[secretCount].createPanel(secret);
 		secretCount++;
 	}
 

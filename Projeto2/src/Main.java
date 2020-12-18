@@ -52,19 +52,10 @@ public class Main {
 		} else {
 			game.fail();
 			game.nextContestant();
-
 		}
 	}
 
-	private static void nextContestant(SystemIDK game) {
-		ContestantIterator c1 = game.iteratorOfContestants();
-		while (c1.hasNext()) {
-			Contestant c11 = c1.next();
-			if (!c1.hasNext()) {
-				c1.resetContestant();
-			}
-		}
-	}
+
 	// j a t
 
 	private static void lastPlay(SystemIDK game) {
@@ -74,18 +65,17 @@ public class Main {
 	}
 
 	// verifica se a pessoa acertou na letra ou errou e adiciona ou remove pontos
-	private static void verification(int points, String letter, SystemIDK game) {
+	private static void verification(int points, String letter, SystemIDK game, SecretIterator s1) {
 		letter = letter.trim();
 		if (!game.isTheLetterRepeated(letter.charAt(0)) && game.isTheLetterInTheSecret(letter)) {
-			// game.isLetter(letter.charAt(0)) && letter.length() == 1 ^
 			game.pointsAdd(letter, points);
 			lastPlay(game);
 		} else {
 			game.pointsPenalize(points);
-			game.nextContestant();
+			//game.nextContestant();
 		}
 	}
-	// ------ -a-a-a ba-a-a batata = batata // round = 5
+	
 
 	/**
 	 * 
@@ -93,7 +83,7 @@ public class Main {
 	 * @pre: 0 < letter.length() < 40 && letter != null
 	 * 
 	 */
-	private static void roletaOutcomes(Scanner input, SystemIDK game) {
+	private static void roletaOutcomes(Scanner input, SystemIDK game, SecretIterator s1) {
 		int rouletPoints = input.nextInt();
 		String letter = input.nextLine();
 		letter = letter.trim();
@@ -105,7 +95,7 @@ public class Main {
 				|| game.getCurrentRound() == game.getMaxRounds()) {
 			System.out.println(JOGO_JA_TERMINOU);
 		} else {
-			verification(rouletPoints, letter, game);
+			verification(rouletPoints, letter, game, s1);
 		}
 
 	}
@@ -113,7 +103,7 @@ public class Main {
 	private static void addContestant(SystemIDK roda, Scanner input, int numberOfContestants) {
         for(int i = 0; i < numberOfContestants; i++) {
              roda.addContestant(input.nextLine());
-             //input.next();
+             
 
         }
     }
@@ -121,14 +111,14 @@ public class Main {
 	 private static void fillTheArrayOfLines(int[] linesOfTheFile, int numberOfRounds, Scanner input) {
 	        for(int i = 0; i < numberOfRounds; i++) {
 				linesOfTheFile[i] = input.nextInt();
-				//input.nextLine();
+				
 	        }
 		}
 
 	private static void readFromTheFile(Scanner file, SystemIDK roda, int[] linesOfTheFile)
 			throws FileNotFoundException {
 		int stopcounter = 0;
-		int newcounter = 0;
+		int counter = 0;
 		int i = 0;
 		int a = 0;
 		String[] copy = new String[50];
@@ -138,24 +128,24 @@ public class Main {
 		}
 		while (stopcounter != linesOfTheFile.length) {
 
-			if (linesOfTheFile[a] == newcounter) {
-				roda.addSecret(copy[newcounter - 1]);
-				newcounter = 0;
+			if (linesOfTheFile[a] == counter) {
+				roda.addSecret(copy[counter - 1]);
+				counter = 0;
 				stopcounter++;
 				a++;
 			} else {
-				newcounter++;
+				counter++;
 			}
 		}
 		file.close();
 	}
 
 	// irá executar uma das opções escolhidas pelo utilizador
-	private static void executeOption(Scanner input, String option, SystemIDK game){
+	private static void executeOption(Scanner input, String option, SystemIDK game, SecretIterator s1){
 		switch (option) {
 
 		case ROLETA:
-			roletaOutcomes(input, game);
+			roletaOutcomes(input, game,s1);
 			break;
 		case PUZZLE:
 			checkPuzzle(input, game);
@@ -181,18 +171,23 @@ public class Main {
 			FileReader reader = new FileReader(fileName);
 			Scanner file = new Scanner(reader);
 			Scanner input = new Scanner(System.in);
+			
 	        int numberOfRounds = input.nextInt();
 	        int numberOfContestants = input.nextInt();   
 	        SystemIDK game = new SystemIDK(numberOfRounds, numberOfContestants);
+	        
 			int[] linesOfTheFile = new int[numberOfRounds];
+			
 			fillTheArrayOfLines(linesOfTheFile, numberOfRounds, input);
 	        readFromTheFile(file, game, linesOfTheFile);
+	        
 	        SecretIterator it1 = game.iteratorOfSecrets();
-	        while(it1.hasNext()) {
+			input.nextLine();
+			while(it1.hasNext()) {
 	            Secret s1 = it1.next();
 				System.out.println(s1.getSecret());		
 			}
-			input.nextLine();
+			
 			addContestant(game, input, numberOfContestants); 
 			ContestantIterator con1 = game.iteratorOfContestants();
 
@@ -200,7 +195,7 @@ public class Main {
 
 		do {
 			option = input.next();
-			executeOption(input, option, game);
+			executeOption(input, option, game,it1); // tinhamos adicionado aquilo algo no argumento e passado para as outras coisas
 
 		} while (!option.equals(SAIR));
 		input.close();
